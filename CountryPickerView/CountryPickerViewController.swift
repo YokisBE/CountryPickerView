@@ -192,17 +192,15 @@ extension CountryPickerViewController {
         let country = isSearchMode ? searchResults[indexPath.row]
             : countries[sectionsTitles[indexPath.section]]![indexPath.row]
 
-        searchController?.isActive = false
-        searchController?.dismiss(animated: false, completion: nil)
+        self.countryPickerView.selectedCountry = country
         
-        let completion = {
-            self.countryPickerView.selectedCountry = country
-        }
+        searchController?.isActive = false
+        searchController?.dismiss(animated: false)
         // If this is root, dismiss, else pop
         if navigationController?.viewControllers.count == 1 {
-            navigationController?.dismiss(animated: true, completion: completion)
+            navigationController?.dismiss(animated: true)
         } else {
-            navigationController?.popViewController(animated: true, completion: completion)
+            navigationController?.popViewController(animated: true)
         }
     }
 }
@@ -220,15 +218,15 @@ extension CountryPickerViewController: UISearchResultsUpdating {
             if showOnlyPreferredSection && hasPreferredSection,
                 let array = countries[dataSource.preferredCountriesSectionTitle!] {
                 indexArray = array
-            } else if let array = countries[String(text.capitalized[text.startIndex])] {
-                indexArray = array
+            } else {
+                indexArray = Array(Array(countries.values).joined())
             }
 
             searchResults.append(contentsOf: indexArray.filter({
                 let name = ($0.localizedName(dataSource.localeForCountryNameInList) ?? $0.name).lowercased()
                 let code = $0.code.lowercased()
                 let query = text.lowercased()
-                return name.hasPrefix(query) || (dataSource.showCountryCodeInList && code.hasPrefix(query))
+                return name.contains(query) || (dataSource.showCountryCodeInList && code.hasPrefix(query))
             }))
         }
         tableView.reloadData()
